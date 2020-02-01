@@ -3,8 +3,10 @@
 // We are linking our routes to a series of "data" sources.
 // These data sources hold arrays of information on table-data, waitinglist, etc.
 // ===============================================================================
-
-var notesDB = require("../db/db.json");
+var fs = require("fs-extra");
+var path = require("path");
+var notesDB = JSON.parse(fs.readFileSync(path.join(__dirname, "../db/db.json"), 'utf8'));
+console.log(notesDB);
 
 
 // ===============================================================================
@@ -18,7 +20,8 @@ module.exports = function(app) {
   // ---------------------------------------------------------------------------
 
   app.get("/api/notes", function(req, res) {
-      res.json(notesDB);
+    // notesDB = JSON.parse(notesDB);
+    res.json(notesDB);
   });
   
 
@@ -30,8 +33,8 @@ module.exports = function(app) {
 
   app.post("/api/notes", function(req, res) {
 
-      notesDB.push(req.body);
-      res.json(notesDB);
+      notesDB.push(JSON.stringify(req));
+      // res.json(notesDB);
   });
 
   // ---------------------------------------------------------------------------
