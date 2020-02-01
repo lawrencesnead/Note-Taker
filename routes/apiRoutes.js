@@ -5,7 +5,6 @@
 // ===============================================================================
 
 var notesDB = require("../db/db.json");
-var waitListData = require("../data/waitinglistData");
 
 
 // ===============================================================================
@@ -21,10 +20,7 @@ module.exports = function(app) {
   app.get("/api/notes", function(req, res) {
       res.json(notesDB);
   });
-
-  app.get("/api/notes:id", function(req, res) {
-    res.json(waitListData);
-  });
+  
 
   // API POST Requests
   // Below code handles when a user submits a form and thus submits data to the server.
@@ -44,9 +40,15 @@ module.exports = function(app) {
 
   app.post("/api/clear", function(req, res) {
     // Empty out the arrays of data
-    tableData.length = 0;
-    waitListData.length = 0;
-
+    notesDB.length = 0;
     res.json({ ok: true });
+  });
+  // API DELETE Requests
+  // Below code handles when a user submits a note id they want deleted.
+  // It will then be parsed out of the notesDB.json file and removed.  
+  app.delete("/api/notes:id", function(req, res) {
+      let id = req.body;
+
+      res.json(waitListData);
   });
 };
