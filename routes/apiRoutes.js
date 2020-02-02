@@ -9,7 +9,20 @@ var path = require("path");
 var notesDB = fs.readFileSync(path.join(__dirname, "../db/db.json"), 'utf8');
 
 
+function convertData() {
+  // This code parses the data into useable form
+  let data = JSON.parse(notesDB);
+  let newNotes = '';
+  data.forEach(note => {
+    newNotes += `{"title":"${note.title}","text":"${note.text}","id":"${note.id}"},`;
+  });
+  console.log(newNotes);
+  return newNotes;
+};
 
+function checkID(id, id2) {
+  return id !== id2;
+};
 
 
 // ===============================================================================
@@ -36,19 +49,17 @@ module.exports = function(app) {
 
   app.post("/api/notes", function(req, res) {
     let data = JSON.parse(notesDB);
-    let newNotes = '[';
-    data.forEach(note => {
-      newNotes += `{"title":"${note.title}","text":"${note.text}"},`;
-    });
-    console.log(newNotes);
-    let newNote =`{"title":"${req.body.title}","text":"${req.body.text}"}]`;
-    newNotes +=  newNote;
-    // notesDB = JSON.stringify(notesDB);
-    console.log(newNotes);
+    // This code takes the req and creates a new json obj and adds it to the array
+    let newNote = `{"title":"${req.body.title}","text":"${req.body.text}","id":"${data.length}"}]`;
+    let tempData = '['+convertData();
+    tempData += newNote;
+   
+    console.log(tempData);
     
-    fs.writeFileSync(path.join(__dirname, "../db/db.json"), newNotes);
+    // This code write the new data file over the old one
+    fs.writeFileSync(path.join(__dirname, "../db/db.json"), tempData);
     notesDB = fs.readFileSync(path.join(__dirname, "../db/db.json"), 'utf8');
-    res.json(notesDB);
+    res.json(tempData);
   });
 
   // ---------------------------------------------------------------------------
@@ -63,9 +74,15 @@ module.exports = function(app) {
   // API DELETE Requests
   // Below code handles when a user submits a note id they want deleted.
   // It will then be parsed out of the notesDB.json file and removed.  
-  app.delete("/api/notes:id", function(req, res) {
-      let id = req.body;
-
-      res.json(waitListData);
+  app.delete("/api/notes/:id", function(req, res) {
+    let temp = JSON.parse(notesDB);
+    let temp2 = temp.filter(data => data.id !== req.params.id);
+    // temp = "["+temp+
+    fs.writeFileSync(path.join(__dirname, "../db/db.json"), JSON.stringify(temp2));
+    notesDB = fs.readFileSync(path.join(__dirname, "../db/db.json"), 'utf8');
+    console.log(temp2)
+    res.json(temp2);
   });
+
+
 };
