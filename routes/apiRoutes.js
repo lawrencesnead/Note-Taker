@@ -4,9 +4,12 @@
 // These data sources hold arrays of information on table-data, waitinglist, etc.
 // ===============================================================================
 var fs = require("fs-extra");
-var path = require("path");
-var notesDB = JSON.parse(fs.readFileSync(path.join(__dirname, "../db/db.json"), 'utf8'));
-console.log(notesDB);
+var path = require("path"); 
+
+var notesDB = fs.readFileSync(path.join(__dirname, "../db/db.json"), 'utf8');
+
+
+
 
 
 // ===============================================================================
@@ -20,8 +23,8 @@ module.exports = function(app) {
   // ---------------------------------------------------------------------------
 
   app.get("/api/notes", function(req, res) {
-    // notesDB = JSON.parse(notesDB);
-    res.json(notesDB);
+    //notesDB = fs.readJSONSync(path.join(__dirname, "../db/db.json"), 'utf8');
+    res.json(JSON.parse(notesDB));
   });
   
 
@@ -32,9 +35,20 @@ module.exports = function(app) {
   // ---------------------------------------------------------------------------
 
   app.post("/api/notes", function(req, res) {
-
-      notesDB.push(JSON.stringify(req));
-      // res.json(notesDB);
+    let data = JSON.parse(notesDB);
+    let newNotes = '[';
+    data.forEach(note => {
+      newNotes += `{"title":"${note.title}","text":"${note.text}"},`;
+    });
+    console.log(newNotes);
+    let newNote =`{"title":"${req.body.title}","text":"${req.body.text}"}]`;
+    newNotes +=  newNote;
+    // notesDB = JSON.stringify(notesDB);
+    console.log(newNotes);
+    
+    fs.writeFileSync(path.join(__dirname, "../db/db.json"), newNotes);
+    notesDB = fs.readFileSync(path.join(__dirname, "../db/db.json"), 'utf8');
+    res.json(notesDB);
   });
 
   // ---------------------------------------------------------------------------
